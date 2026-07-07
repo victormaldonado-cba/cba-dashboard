@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CBA Board — Instagram · Seguimiento diario</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --brown: #402807;
+      --orange: #ff9e1b;
+      --brown-light: #5a3a10;
+      --brown-dark: #2a1a05;
+      --white: #ffffff;
+      --text-muted: #8a7060;
+      --card-bg: rgba(255,255,255,0.04);
+      --card-border: rgba(255,255,255,0.08);
+      --green: #4ade80;
+      --red: #f87171;
+    }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--brown-dark); color: var(--white); min-height: 100vh; }
+
+    /* HEADER */
+    header {
+      background: var(--brown);
+      border-bottom: 2px solid var(--orange);
+      padding: 0 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px;
+    }
+    .logo-area { display: flex; align-items: center; gap: 14px; }
+    .logo-mark {
+      width: 36px; height: 36px;
+      background: var(--orange); border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 14px; color: var(--brown-dark); letter-spacing: -0.5px;
+    }
+    .brand-name { font-size: 14px; font-weight: 600; }
+    .brand-sub { font-size: 10px; color: var(--orange); font-weight: 400; letter-spacing: 0.5px; text-transform: uppercase; }
+    .header-right { font-size: 11px; color: var(--text-muted); text-align: right; }
+    .header-right strong { color: var(--orange); display: block; font-size: 12px; }
+
+    /* HERO */
+    .hero {
+      background: linear-gradient(135deg, var(--brown) 0%, var(--brown-dark) 60%);
+      padding: 40px 40px 36px;
+      border-bottom: 1px solid rgba(255,158,27,0.15);
+    }
+    .hero-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--orange); margin-bottom: 10px;
+    }
+    .hero-title { font-size: 28px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+    .hero-title span { color: var(--orange); }
+    .hero-meta { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+    /* MAIN */
+    main { padding: 40px; max-width: 1200px; margin: 0 auto; }
+
+    /* SECTION */
+    .section { margin-bottom: 56px; }
+    .section-header { margin-bottom: 24px; }
+    .section-eyebrow {
+      font-size: 10px; font-weight: 700; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--orange); margin-bottom: 4px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-eyebrow::after {
+      content: ''; flex: 1; height: 1px; background: rgba(255,158,27,0.2);
+    }
+    .section-title { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .section-sub { font-size: 12px; color: var(--text-muted); }
+
+    /* ACCOUNTS GRID */
+    .accounts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .account-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .account-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .account-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800;
+      border: 2px solid var(--orange); flex-shrink: 0;
+    }
+    .account-avatar.cba { background: var(--brown); color: var(--orange); }
+    .account-avatar.pablo { background: #1a0d03; color: var(--orange); }
+    .account-handle { font-size: 15px; font-weight: 700; }
+    .account-followers { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
+    .account-followers strong { color: var(--orange); }
+
+    /* KPI GRID */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .kpi {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .kpi-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px;
+    }
+    .kpi-val { font-size: 24px; font-weight: 800; line-height: 1; margin-bottom: 5px; }
+    .kpi-val.accent { color: var(--orange); }
+    .kpi-delta {
+      font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 3px;
+    }
+    .kpi-delta.up { color: var(--green); }
+    .kpi-delta.down { color: var(--red); }
+    .kpi-delta.neutral { color: var(--text-muted); }
+    .kpi-delta-note { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+    /* MINI BAR CHART */
+    .chart-wrap { position: relative; height: 90px; margin-top: 4px; }
+    .chart-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;
+    }
+
+    /* BLOQUE 2 — MES EN CURSO */
+    .mes-card {
+      background: rgba(255,158,27,0.04);
+      border: 1px solid rgba(255,158,27,0.12);
+      border-radius: 14px;
+      padding: 24px;
+    }
+    .mes-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
+    }
+    .progress-bar-wrap { margin-bottom: 20px; }
+    .progress-label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 11px; color: var(--text-muted); margin-bottom: 6px;
+    }
+    .progress-label strong { color: var(--white); }
+    .progress-track {
+      height: 5px; background: rgba(255,255,255,0.08);
+      border-radius: 3px; overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: var(--orange); border-radius: 3px;
+    }
+
+    .mes-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .mes-metric {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .mes-metric-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 8px;
+    }
+    .mes-metric-now { font-size: 13px; font-weight: 500; color: var(--text-muted); margin-bottom: 4px; }
+    .mes-metric-now strong { color: rgba(255,255,255,0.7); font-size: 15px; }
+    .mes-metric-proj { font-size: 20px; font-weight: 800; margin-bottom: 4px; }
+    .mes-metric-vs {
+      font-size: 11px; font-weight: 500; display: flex; align-items: center; gap: 3px;
+    }
+    .mes-metric-vs.up { color: var(--green); }
+    .mes-metric-vs.down { color: var(--red); }
+
+    /* BLOQUE 3 — HISTÓRICO */
+    .hist-block {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+      padding: 32px;
+    }
+    .hist-header {
+      display: flex; align-items: flex-start;
+      justify-content: space-between; margin-bottom: 28px;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .metric-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .metric-tab {
+      padding: 6px 16px; border-radius: 20px; font-size: 12px;
+      font-weight: 600; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.45); background: transparent;
+      transition: all 0.15s; font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .metric-tab.active {
+      background: var(--orange); border-color: var(--orange);
+      color: var(--brown-dark);
+    }
+    .legend-row { display: flex; align-items: center; gap: 18px; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12px; color: rgba(255,255,255,0.6); font-weight: 500; }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+    .hist-charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .hist-chart-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 20px;
+    }
+    .hist-chart-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 3px;
+    }
+    .hist-chart-account { font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+    .hist-chart-wrap { position: relative; height: 160px; }
+    .month-note {
+      font-size: 11px; color: var(--text-muted); margin-top: 18px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .month-note::before { content: '⚠'; color: #fbbf24; font-size: 12px; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      padding: 20px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-text { font-size: 11px; color: var(--text-muted); }
+    .footer-brand { font-size: 11px; color: rgba(255,158,27,0.6); font-weight: 500; }
+
+    @media (max-width: 800px) {
+      main { padding: 24px 20px; }
+      header { padding: 0 20px; }
+      .hero { padding: 28px 20px; }
+      footer { padding: 16px 20px; flex-direction: column; gap: 8px; }
+      .accounts-grid { grid-template-columns: 1fr; }
+      .hist-charts-grid { grid-template-columns: 1fr; }
+      .mes-metrics { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-mark">CBA</div>
+    <div>
+      <div class="brand-name">CBA Board</div>
+      <div class="brand-sub">Ibero-American Business Community</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <strong>7 jul 2026</strong>
+    Instagram Analytics
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-label">Seguimiento diario</div>
+  <h1 class="hero-title">Instagram <span>Metrics</span></h1>
+  <div class="hero-meta">@cba.board · @pablo.riccheri · Datos al 6 jul 2026</div>
+</div>
+
+<main>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- BLOQUE 1 — PULSO SEMANAL                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Bloque 1</div>
+      <div class="section-title">Pulso semanal</div>
+      <div class="section-sub">30 jun – 6 jul 2026 · Últimos 7 días · % vs. 30 días anteriores</div>
+    </div>
+
+    <div class="accounts-grid">
+
+      <!-- CBA -->
+      <div class="account-card">
+        <div class="account-head">
+          <div class="account-avatar cba">CB</div>
+          <div>
+            <div class="account-handle">@cba.board</div>
+            <div class="account-followers"><strong>1.189</strong> seguidores</div>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label">Alcance</div>
+            <div class="kpi-val">3.130</div>
+            <div class="kpi-delta up">↑ +98% <span style="font-weight:400;color:var(--text-muted)">vs 30d ant.</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Visualizaciones</div>
+            <div class="kpi-val">11.458</div>
+            <div class="kpi-delta up">↑ +131% <span style="font-weight:400;color:var(--text-muted)">vs 30d ant.</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Engagement</div>
+            <div class="kpi-val accent">7,8%</div>
+            <div class="kpi-delta neutral">Cuentas únicas / alcance</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Seguidores nuevos</div>
+            <div class="kpi-val">+14</div>
+            <div class="kpi-delta neutral">En los últimos 7 días</div>
+          </div>
+        </div>
+        <div class="chart-label">Alcance diario (últimos 7 días)</div>
+        <div class="chart-wrap">
+          <canvas id="pulse-cba"></canvas>
+        </div>
+      </div>
+
+      <!-- PABLO -->
+      <div class="account-card">
+        <div class="account-head">
+          <div class="account-avatar pablo">PR</div>
+          <div>
+            <div class="account-handle">@pablo.riccheri</div>
+            <div class="account-followers"><strong>1.019</strong> seguidores</div>
+          </div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi">
+            <div class="kpi-label">Alcance</div>
+            <div class="kpi-val">1.022</div>
+            <div class="kpi-delta down">↓ −17% <span style="font-weight:400;color:var(--text-muted)">vs 30d ant.</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Visualizaciones</div>
+            <div class="kpi-val">7.288</div>
+            <div class="kpi-delta up">↑ +208% <span style="font-weight:400;color:var(--text-muted)">vs 30d ant.</span></div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Engagement</div>
+            <div class="kpi-val accent">15,4%</div>
+            <div class="kpi-delta neutral">Cuentas únicas / alcance</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Seguidores nuevos</div>
+            <div class="kpi-val">+4</div>
+            <div class="kpi-delta neutral">En los últimos 7 días</div>
+          </div>
+        </div>
+        <div class="chart-label">Alcance diario (últimos 7 días)</div>
+        <div class="chart-wrap">
+          <canvas id="pulse-pablo"></canvas>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- BLOQUE 2 — MES EN CURSO                            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Bloque 2</div>
+      <div class="section-title">Julio en curso</div>
+      <div class="section-sub">6 de 31 días transcurridos · Proyección si el ritmo actual se mantiene · vs. junio final</div>
+    </div>
+
+    <div class="accounts-grid">
+
+      <!-- CBA mes -->
+      <div class="mes-card">
+        <div class="mes-head">
+          <div class="account-avatar cba" style="width:36px;height:36px;font-size:12px;">CB</div>
+          <div>
+            <div class="account-handle">@cba.board</div>
+            <div style="font-size:11px;color:var(--text-muted);">Jul 1–6 · Acumulado del mes</div>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-label">
+            <span>Días transcurridos</span>
+            <strong>6 / 31</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:19.4%"></div>
+          </div>
+        </div>
+
+        <div class="mes-metrics">
+          <div class="mes-metric">
+            <div class="mes-metric-label">Alcance</div>
+            <div class="mes-metric-now">Ahora: <strong>2.755</strong></div>
+            <div class="mes-metric-proj">≈ 14.242</div>
+            <div class="mes-metric-vs down">↓ −2% vs junio (14.588)</div>
+          </div>
+          <div class="mes-metric">
+            <div class="mes-metric-label">Visualizaciones</div>
+            <div class="mes-metric-now">Ahora: <strong>10.450</strong></div>
+            <div class="mes-metric-proj">≈ 54.025</div>
+            <div class="mes-metric-vs up">↑ +15% vs junio (47.041)</div>
+          </div>
+          <div class="mes-metric">
+            <div class="mes-metric-label">Seguidores nuevos</div>
+            <div class="mes-metric-now">Ahora: <strong>+12</strong></div>
+            <div class="mes-metric-proj">≈ +62</div>
+            <div class="mes-metric-vs down">↓ −19% vs junio (+77)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PABLO mes -->
+      <div class="mes-card">
+        <div class="mes-head">
+          <div class="account-avatar pablo" style="width:36px;height:36px;font-size:12px;">PR</div>
+          <div>
+            <div class="account-handle">@pablo.riccheri</div>
+            <div style="font-size:11px;color:var(--text-muted);">Jul 1–6 · Acumulado del mes</div>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap">
+          <div class="progress-label">
+            <span>Días transcurridos</span>
+            <strong>6 / 31</strong>
+          </div>
+          <div class="progress-track">
+            <div class="progress-fill" style="width:19.4%"></div>
+          </div>
+        </div>
+
+        <div class="mes-metrics">
+          <div class="mes-metric">
+            <div class="mes-metric-label">Alcance</div>
+            <div class="mes-metric-now">Ahora: <strong>830</strong></div>
+            <div class="mes-metric-proj">≈ 4.291</div>
+            <div class="mes-metric-vs down">↓ −27% vs junio (5.868)</div>
+          </div>
+          <div class="mes-metric">
+            <div class="mes-metric-label">Visualizaciones</div>
+            <div class="mes-metric-now">Ahora: <strong>6.281</strong></div>
+            <div class="mes-metric-proj">≈ 32.473</div>
+            <div class="mes-metric-vs down">↓ −2% vs junio (33.143)</div>
+          </div>
+          <div class="mes-metric">
+            <div class="mes-metric-label">Seguidores nuevos</div>
+            <div class="mes-metric-now">Ahora: <strong>+3</strong></div>
+            <div class="mes-metric-proj">≈ +16</div>
+            <div class="mes-metric-vs down">↓ −47% vs junio (+30)</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- BLOQUE 3 — TENDENCIA HISTÓRICA                     -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-eyebrow">Bloque 3</div>
+      <div class="section-title">Tendencia histórica</div>
+      <div class="section-sub">Enero – julio 2026 · Ambas cuentas</div>
+    </div>
+
+    <div class="hist-block">
+      <div class="hist-header">
+        <div>
+          <div class="metric-tabs" id="metric-tabs">
+            <button class="metric-tab active" data-metric="reach">Alcance</button>
+            <button class="metric-tab" data-metric="views">Visualizaciones</button>
+            <button class="metric-tab" data-metric="interactions">Interacciones</button>
+            <button class="metric-tab" data-metric="followers">Seguidores nuevos</button>
+          </div>
+        </div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="legend-dot" style="background:#ff9e1b"></div>@cba.board</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(255,158,27,0.35)"></div>@pablo.riccheri</div>
+        </div>
+      </div>
+
+      <div class="hist-charts-grid">
+        <div class="hist-chart-card">
+          <div class="hist-chart-label">Cuenta</div>
+          <div class="hist-chart-account">@cba.board</div>
+          <div class="hist-chart-wrap"><canvas id="hist-cba"></canvas></div>
+        </div>
+        <div class="hist-chart-card">
+          <div class="hist-chart-label">Cuenta</div>
+          <div class="hist-chart-account">@pablo.riccheri</div>
+          <div class="hist-chart-wrap"><canvas id="hist-pablo"></canvas></div>
+        </div>
+      </div>
+
+      <div class="month-note">Jul* = acumulado hasta el 6 de julio (mes en curso)</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="footer-text">Datos: Meta Business Suite + API Instagram · Actualizado 7 jul 2026</div>
+  <div class="footer-brand">CBA Board © 2026</div>
+</footer>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const DAYS = ['30/6', '1/7', '2/7', '3/7', '4/7', '5/7', '6/7'];
+
+const pulseCBA  = [375, 572, 322, 903, 251, 126, 581];
+const pulsePablo = [192, 141, 101,  22, 217,  13, 336];
+
+const MONTHS = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul*'];
+
+const historical = {
+  cba: {
+    reach:        [6850,  5092,  6481,  9340,  5529,  14588, 2755],
+    views:        [14232, 13319, 13733, 30487, 19003, 47041, 10450],
+    interactions: [231,   330,   237,   677,   677,   1341,  229],
+    followers:    [58,    24,    29,    59,    62,    77,    12],
+  },
+  pablo: {
+    reach:        [3743,  1124,  1102,  3067,  2978,  5868,  830],
+    views:        [11307, 6020,  3918,  7569,  9367,  33143, 6281],
+    interactions: [236,   181,   109,   245,   284,   978,   136],
+    followers:    [22,    14,    15,    21,    20,    30,    3],
+  }
+};
+
+// ─── CHART DEFAULTS ──────────────────────────────────────────────────────────
+
+Chart.defaults.color = 'rgba(255,255,255,0.45)';
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+const gridOpts = {
+  color: 'rgba(255,255,255,0.06)',
+  drawBorder: false,
+};
+const tickOpts = { font: { size: 10 }, padding: 4 };
+
+// ─── PULSE CHARTS ────────────────────────────────────────────────────────────
+
+function makePulseChart(id, data, color) {
+  const ctx = document.getElementById(id).getContext('2d');
+  const gradFill = ctx.createLinearGradient(0, 0, 0, 90);
+  gradFill.addColorStop(0, color + '33');
+  gradFill.addColorStop(1, color + '00');
+
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: DAYS,
+      datasets: [{
+        data,
+        backgroundColor: data.map((v, i) => i === data.length - 1 ? color : color + '66'),
+        borderRadius: 4,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: '#2a1a05',
+        titleColor: '#ff9e1b',
+        bodyColor: 'rgba(255,255,255,0.75)',
+        borderColor: 'rgba(255,158,27,0.3)',
+        borderWidth: 1,
+        callbacks: {
+          label: ctx => ' Alcance: ' + ctx.parsed.y.toLocaleString('es-AR')
+        }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { ...tickOpts } },
+        y: { grid: gridOpts, ticks: { ...tickOpts, callback: v => v >= 1000 ? (v/1000).toFixed(1)+'k' : v }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+makePulseChart('pulse-cba',   pulseCBA,   '#ff9e1b');
+makePulseChart('pulse-pablo', pulsePablo, '#e07b00');
+
+// ─── HISTORICAL CHARTS ───────────────────────────────────────────────────────
+
+let histCBA, histPablo;
+
+function makeHistChart(id, data, color) {
+  const ctx = document.getElementById(id).getContext('2d');
+  return new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: MONTHS,
+      datasets: [{
+        data,
+        backgroundColor: data.map((v, i) => i === data.length - 1 ? color + '55' : color),
+        borderRadius: 5,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: {
+        backgroundColor: '#2a1a05',
+        titleColor: '#ff9e1b',
+        bodyColor: 'rgba(255,255,255,0.75)',
+        borderColor: 'rgba(255,158,27,0.3)',
+        borderWidth: 1,
+        callbacks: {
+          label: ctx => ' ' + ctx.parsed.y.toLocaleString('es-AR')
+        }
+      }},
+      scales: {
+        x: { grid: { display: false }, ticks: { ...tickOpts } },
+        y: { grid: gridOpts, ticks: { ...tickOpts, callback: v => v >= 1000 ? (v/1000).toFixed(0)+'k' : v }, beginAtZero: true }
+      }
+    }
+  });
+}
+
+histCBA   = makeHistChart('hist-cba',   historical.cba.reach,   '#ff9e1b');
+histPablo = makeHistChart('hist-pablo', historical.pablo.reach, 'rgba(255,158,27,0.5)');
+
+// ─── METRIC TABS ─────────────────────────────────────────────────────────────
+
+const metricMap = {
+  reach:        { cba: historical.cba.reach,        pablo: historical.pablo.reach        },
+  views:        { cba: historical.cba.views,        pablo: historical.pablo.views        },
+  interactions: { cba: historical.cba.interactions, pablo: historical.pablo.interactions },
+  followers:    { cba: historical.cba.followers,    pablo: historical.pablo.followers    },
+};
+
+document.getElementById('metric-tabs').addEventListener('click', e => {
+  const tab = e.target.closest('.metric-tab');
+  if (!tab) return;
+  document.querySelectorAll('.metric-tab').forEach(t => t.classList.remove('active'));
+  tab.classList.add('active');
+  const m = tab.dataset.metric;
+  histCBA.data.datasets[0].data   = metricMap[m].cba;
+  histPablo.data.datasets[0].data = metricMap[m].pablo;
+  histCBA.update();
+  histPablo.update();
+});
+</script>
+</body>
+</html>
